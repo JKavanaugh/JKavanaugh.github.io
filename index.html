@@ -74,13 +74,11 @@
             <!-- Schedule Page -->
             <div id="page-schedule">
                 <!-- Week Navigation -->
-                <div class="bg-white p-4 rounded-xl shadow-md flex items-center justify-between mb-6">
-                    <div>
-                        <button id="prevWeekBtn" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">&lt; Prev</button>
-                        <button id="nextWeekBtn" class="ml-2 bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Next &gt;</button>
-                    </div>
-                    <h3 id="week-range" class="text-lg font-semibold text-center flex-grow"></h3>
-                    <button id="publishBtn" class="bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Publish Schedule</button>
+                <div class="bg-white p-4 rounded-xl shadow-md flex items-center justify-between mb-6 relative">
+                    <button id="prevWeekBtn" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">&lt; Prev</button>
+                    <h3 id="week-range" class="text-lg font-semibold text-center"></h3>
+                    <button id="nextWeekBtn" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Next &gt;</button>
+                    <button id="publishBtn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Publish Schedule</button>
                 </div>
                 <!-- Scheduling Board -->
                 <div id="schedule-board" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"></div>
@@ -176,16 +174,19 @@
     <!-- Printable Area -->
     <div id="printable-schedule" class="hidden"></div>
 
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot, updateDoc, arrayUnion, arrayRemove, deleteField, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
+    <script>
         // --- CONFIG & INITIALIZATION ---
         const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO", authDomain: "DEMO", projectId: "DEMO" };
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-scheduler-app';
         
+        const { initializeApp } = firebase.app;
+        const { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } = firebase.auth;
+        const { getFirestore, doc, setDoc, onSnapshot, updateDoc, arrayUnion, arrayRemove, deleteField, setLogLevel } = firebase.firestore;
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
