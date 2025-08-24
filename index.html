@@ -180,7 +180,15 @@
 
     <script>
         // --- CONFIG & INITIALIZATION ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO", authDomain: "DEMO", projectId: "DEMO" };
+        const firebaseConfig = {
+  apiKey: "AIzaSyAeabmsd61JVvQxohZJ_ON34GbZ0Zik_20",
+  authDomain: "mf-schedule-34ca9.firebaseapp.com",
+  projectId: "mf-schedule-34ca9",
+  storageBucket: "mf-schedule-34ca9.firebasestorage.app",
+  messagingSenderId: "607510148870",
+  appId: "1:607510148870:web:d2504750aabadecc351087",
+  measurementId: "G-FDBY40S3DD"
+};
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-scheduler-app';
         
         const { initializeApp } = firebase.app;
