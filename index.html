@@ -1,139 +1,190 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weekly Scheduling Board</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyAeabmsd61JVvQxohZJ_ON34GbZ0Zik_20",
+            authDomain: "mf-schedule-34ca9.firebaseapp.com",
+            projectId: "mf-schedule-34ca9",
+            storageBucket: "mf-schedule-34ca9.firebasestorage.app",
+            messagingSenderId: "607510148870",
+            appId: "1:607510148870:web:d2504750aabadecc351087",
+            measurementId: "G-FDBY40S3DD"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+    </script>
     <script src="app.js"></script>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/phosphor-icons/1.4.2/css/phosphor.min.css" rel="stylesheet">
     <link href="app.css" rel="stylesheet">
-  </head>
-  <body class="bg-gray-50 text-gray-800">
+</head>
+
+<body class="bg-gray-50 text-gray-800">
 
     <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-      <header class="text-center mb-4">
-        <h1 class="text-4xl font-bold text-gray-900">Weekly Scheduling Board</h1>
-        <p class="text-gray-600 mt-2">Plan your week, assign your team and reserve equipment.</p>
-        <p id="userIdDisplay" class="text-xs text-gray-500 mt-2"></p>
-      </header>
+        <header class="text-center mb-4">
+            <h1 class="text-4xl font-bold text-gray-900">Weekly Scheduling Board</h1>
+            <p class="text-gray-600 mt-2">Plan your week, assign your team and reserve equipment.</p>
+            <p id="userIdDisplay" class="text-xs text-gray-500 mt-2"></p>
+        </header>
 
-      <!-- Page Navigation -->
-      <div class="flex justify-center mb-4 border-b">
-        <button id="nav-schedule" class="nav-btn py-2 px-6 text-lg font-medium text-gray-600 rounded-t-lg">Schedule</button>
-        <button id="nav-equipment" class="nav-btn py-2 px-6 text-lg font-medium text-gray-600 rounded-t-lg">Equipment</button>
-        <button id="nav-manage" class="nav-btn py-2 px-6 text-lg font-medium text-gray-600 rounded-t-lg">Manage</button>
-      </div>
-
-      <!-- Main Content -->
-      <div id="main-content">
-        <!-- Schedule Page -->
-        <div id="page-schedule">
-          <!-- Week Navigation -->
-          <div class="bg-white p-4 rounded-xl shadow-md flex items-center justify-between mb-6 relative">
-            <button id="prevWeekBtn" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">&lt; Prev</button>
-            <h3 id="week-range" class="text-lg font-semibold text-center"></h3>
-            <button id="nextWeekBtn" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Next &gt;</button>
-            <button id="publishBtn" class="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Publish Schedule</button>
-          </div>
-          <!-- Scheduling Board -->
-          <div id="schedule-board" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"></div>
+        <!-- Page Navigation -->
+        <div class="flex justify-center mb-4 border-b">
+            <button id="nav-schedule"
+                class="nav-btn py-2 px-6 text-lg font-medium text-gray-600 rounded-t-lg">Schedule</button>
+            <button id="nav-equipment"
+                class="nav-btn py-2 px-6 text-lg font-medium text-gray-600 rounded-t-lg">Equipment</button>
+            <button id="nav-manage"
+                class="nav-btn py-2 px-6 text-lg font-medium text-gray-600 rounded-t-lg">Manage</button>
         </div>
 
-        <!-- Equipment Page -->
-        <div id="page-equipment" class="hidden">
-          <!-- Equipment Management & Navigation -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <div class="bg-white p-6 rounded-xl shadow-md">
-              <h2 class="text-2xl font-semibold mb-4">Manage Equipment</h2>
-              <div class="flex gap-4 mb-4">
-                <input type="text" id="equipmentNameInput" placeholder="New equipment name..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none">
-                <button id="addEquipmentBtn" class="bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors shadow-sm">Add</button>
-              </div>
-              <h3 class="text-lg font-medium text-gray-700 mt-6 mb-2">All Equipment</h3>
-              <div id="available-equipment" class="p-4 bg-gray-100 rounded-lg available-list space-y-3"></div>
+        <!-- Main Content -->
+        <div id="main-content">
+            <!-- Schedule Page -->
+            <div id="page-schedule">
+                <!-- Week Navigation -->
+                <div class="bg-white p-4 rounded-xl shadow-md flex items-center justify-between mb-6 relative">
+                    <button id="prevWeekBtn"
+                        class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">&lt;
+                        Prev</button>
+                    <h3 id="week-range" class="text-lg font-semibold text-center"></h3>
+                    <button id="nextWeekBtn"
+                        class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Next
+                        &gt;</button>
+                    <button id="publishBtn"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 bg-blue-600 text-white font-semibold py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors">Publish
+                        Schedule</button>
+                </div>
+                <!-- Scheduling Board -->
+                <div id="schedule-board" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                </div>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center">
-              <h2 class="text-xl font-semibold mb-3 text-center">Week Navigation</h2>
-              <div class="flex items-center justify-between">
-                <button id="prevWeekBtnEq" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">&lt; Prev</button>
-                <h3 id="week-range-eq" class="text-lg font-semibold text-center"></h3>
-                <button id="nextWeekBtnEq" class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Next &gt;</button>
-              </div>
-            </div>
-          </div>
-          <!-- Equipment Schedule Board -->
-          <div id="equipment-schedule-board" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"></div>
-        </div>
 
-        <!-- Manage Page -->
-        <div id="page-manage" class="hidden">
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white p-6 rounded-xl shadow-md">
-              <h2 class="text-2xl font-semibold mb-4">Manage Projects</h2>
-              <div class="flex gap-4 mb-4">
-                <input type="text" id="projectNameInput" placeholder="New project name..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
-                <button id="addProjectBtn" class="bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-purple-700">Add</button>
-              </div>
-              <h3 class="text-lg font-medium text-gray-700 mt-6 mb-2">All Projects</h3>
-              <div id="manage-project-list" class="p-4 bg-gray-100 rounded-lg available-list space-y-3"></div>
+            <!-- Equipment Page -->
+            <div id="page-equipment" class="hidden">
+                <!-- Equipment Management & Navigation -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-semibold mb-4">Manage Equipment</h2>
+                        <div class="flex gap-4 mb-4">
+                            <input type="text" id="equipmentNameInput" placeholder="New equipment name..."
+                                class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none">
+                            <button id="addEquipmentBtn"
+                                class="bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition-colors shadow-sm">Add</button>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-700 mt-6 mb-2">All Equipment</h3>
+                        <div id="available-equipment" class="p-4 bg-gray-100 rounded-lg available-list space-y-3"></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md flex flex-col justify-center">
+                        <h2 class="text-xl font-semibold mb-3 text-center">Week Navigation</h2>
+                        <div class="flex items-center justify-between">
+                            <button id="prevWeekBtnEq"
+                                class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">&lt;
+                                Prev</button>
+                            <h3 id="week-range-eq" class="text-lg font-semibold text-center"></h3>
+                            <button id="nextWeekBtnEq"
+                                class="bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded-lg hover:bg-gray-300 transition-colors">Next
+                                &gt;</button>
+                        </div>
+                    </div>
+                </div>
+                <!-- Equipment Schedule Board -->
+                <div id="equipment-schedule-board"
+                    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"></div>
             </div>
-            <div class="bg-white p-6 rounded-xl shadow-md">
-              <h2 class="text-2xl font-semibold mb-4">Manage Workers</h2>
-              <div class="flex gap-4 mb-4">
-                <input type="text" id="workerNameInput" placeholder="New worker's name..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                <button id="addWorkerBtn" class="bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700">Add</button>
-              </div>
-              <h3 class="text-lg font-medium text-gray-700 mt-6 mb-2">All Workers</h3>
-              <div id="manage-worker-list" class="p-4 bg-gray-100 rounded-lg available-list space-y-3"></div>
+
+            <!-- Manage Page -->
+            <div id="page-manage" class="hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-semibold mb-4">Manage Projects</h2>
+                        <div class="flex gap-4 mb-4">
+                            <input type="text" id="projectNameInput" placeholder="New project name..."
+                                class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:outline-none">
+                            <button id="addProjectBtn"
+                                class="bg-purple-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-purple-700">Add</button>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-700 mt-6 mb-2">All Projects</h3>
+                        <div id="manage-project-list" class="p-4 bg-gray-100 rounded-lg available-list space-y-3"></div>
+                    </div>
+                    <div class="bg-white p-6 rounded-xl shadow-md">
+                        <h2 class="text-2xl font-semibold mb-4">Manage Workers</h2>
+                        <div class="flex gap-4 mb-4">
+                            <input type="text" id="workerNameInput" placeholder="New worker's name..."
+                                class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+                            <button id="addWorkerBtn"
+                                class="bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700">Add</button>
+                        </div>
+                        <h3 class="text-lg font-medium text-gray-700 mt-6 mb-2">All Workers</h3>
+                        <div id="manage-worker-list" class="p-4 bg-gray-100 rounded-lg available-list space-y-3"></div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
-      </div>
     </div>
 
     <!-- Worker Assignment Modal -->
-    <div id="assignWorkerModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
-      <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg max-h-[80vh] flex flex-col">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold">Assign Workers to <span id="modalProjectName"></span></h2>
-          <button id="closeAssignModalBtn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+    <div id="assignWorkerModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Assign Workers to <span id="modalProjectName"></span></h2>
+                <button id="closeAssignModalBtn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <div id="modal-worker-list" class="overflow-y-auto space-y-2"></div>
         </div>
-        <div id="modal-worker-list" class="overflow-y-auto space-y-2"></div>
-      </div>
     </div>
 
     <!-- Add Project Modal -->
-    <div id="addProjectModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
-      <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg max-h-[80vh] flex flex-col">
-        <div class="flex justify-between items-center mb-4">
-          <h2 class="text-2xl font-bold">Add Project to Schedule</h2>
-          <button id="closeAddProjectModalBtn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+    <div id="addProjectModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-lg max-h-[80vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-2xl font-bold">Add Project to Schedule</h2>
+                <button id="closeAddProjectModalBtn" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
+            </div>
+            <div id="modal-project-list" class="overflow-y-auto space-y-2"></div>
         </div>
-        <div id="modal-project-list" class="overflow-y-auto space-y-2"></div>
-      </div>
     </div>
 
     <!-- Equipment Note Modal -->
-    <div id="equipmentNoteModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
-      <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
-        <h2 class="text-2xl font-bold mb-4">Reserve Equipment</h2>
-        <p class="mb-2">Add a note for reserving <strong id="modalEquipmentName"></strong>.</p>
-        <textarea id="equipmentNoteInput" placeholder="e.g., For Project X, Maintenance..." class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none mb-4" rows="3"></textarea>
-        <div class="flex justify-end gap-4">
-          <button id="closeEquipmentNoteModalBtn" class="bg-gray-200 text-gray-700 font-semibold py-2 px-5 rounded-lg hover:bg-gray-300">Cancel</button>
-          <button id="saveEquipmentNoteBtn" class="bg-green-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-green-700">Save</button>
+    <div id="equipmentNoteModal"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md">
+            <h2 class="text-2xl font-bold mb-4">Reserve Equipment</h2>
+            <p class="mb-2">Add a note for reserving <strong id="modalEquipmentName"></strong>.</p>
+            <textarea id="equipmentNoteInput" placeholder="e.g., For Project X, Maintenance..."
+                class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none mb-4"
+                rows="3"></textarea>
+            <div class="flex justify-end gap-4">
+                <button id="closeEquipmentNoteModalBtn"
+                    class="bg-gray-200 text-gray-700 font-semibold py-2 px-5 rounded-lg hover:bg-gray-300">Cancel</button>
+                <button id="saveEquipmentNoteBtn"
+                    class="bg-green-600 text-white font-semibold py-2 px-5 rounded-lg hover:bg-green-700">Save</button>
+            </div>
         </div>
-      </div>
     </div>
 
     <!-- Printable Area -->
     <div id="printable-schedule" class="hidden"></div>
-  </body>
+</body>
+
 </html>
