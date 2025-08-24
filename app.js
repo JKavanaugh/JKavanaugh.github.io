@@ -12,11 +12,6 @@ const firebaseConfig = {
 };
 const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-scheduler-app';
 
-const { initializeApp } = firebase.app;
-const { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } = firebase.auth;
-const { getFirestore, doc, setDoc, onSnapshot, updateDoc, arrayUnion, arrayRemove, deleteField, setLogLevel } = firebase.firestore;
-
-const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 // setLogLevel('debug');
