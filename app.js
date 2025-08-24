@@ -1,6 +1,10 @@
-import {initializeApp} from "firebase/app";
-import {getAnalytics} from "firebase/analytics";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-analytics.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyAeabmsd61JVvQxohZJ_ON34GbZ0Zik_20",
   authDomain: "mf-schedule-34ca9.firebaseapp.com",
@@ -10,7 +14,10 @@ const firebaseConfig = {
   appId: "1:607510148870:web:d2504750aabadecc351087",
   measurementId: "G-FDBY40S3DD"
 };
-const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-scheduler-app';
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 
 const auth = getAuth(app);
 const db = getFirestore(app);
@@ -750,6 +757,3 @@ function initializeGlobalEventListeners() {
     }
   });
 }
-
-  </script>
-
